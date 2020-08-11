@@ -93,6 +93,7 @@ class CPPlot: #simple object for plotting only
         pg.QtGui.QApplication.processEvents()
 
 class MainWindow(QtWidgets.QMainWindow):
+    '''GUI Window with template from QTDesigner'''
     #TODO add characteristic and packet printouts
     def __init__(self, *args, **kwargs):
         self.plot_data = []

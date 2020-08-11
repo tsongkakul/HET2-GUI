@@ -1,5 +1,10 @@
+from customperipheral import CustomPeripheral
+from PyQt5 import QtWidgets, uic
+from binascii import hexlify
+
 # define constants here
 dev_modes = ['idle', 'run', 'save', 'dump']
+data_modes = ['PH_AMP']
 pstat_modes = ['CA', 'CV']
 rtia_values = [
     'External', '200', '1k', '2k', '3k',
@@ -12,14 +17,9 @@ pga_values = [1, 1.5, 2, 4, 9]
 
 
 class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
-    SYSCFG_UUID = "f000abcd-0451-4000-b000-000000000000"
-    CHAR1_UUID = "f00062d2-0451-4000-b000-000000000000"
-    CHAR2_UUID = "f00044dc-0451-4000-b000-000000000000"
-    CHAR3_UUID = "f0003c36-0451-4000-b000-000000000000"
-    CHAR4_UUID = "f0003a36-0451-4000-b000-000000000000"
-    CHAR5_UUID = "f00030d8-0451-4000-b000-000000000000"
 
     def __init__(self):
+        super(HET2Device, self).__init__()
         self.id = 0
         self.dev_mode = 'idle'
         self.pstat_mode = 'CA'
@@ -31,6 +31,15 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
         self.amp_data = []
         self.ph_data = []
         self.batt = []
+
+    def parse_het(self, packet, mode):
+        if mode == "AMPPH":
+            for i in range(0, 80, 4):
+                if (i/4)%2 == 0: #even packets contain pH data
+                    self.amp_data.append(int.from_bytes(packet[i:i+4], byteorder= 'big'))
+                else:
+                    self.ph_data.append(int.from_bytes(packet[i:i+4], byteorder= 'big'))
+
 
     def add_amp(self, data):
         self.amp_data.append(calc_amp(data))
@@ -71,10 +80,10 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             print("Invalid RTIA value.")
             return 0
 
-    def set_period(self,input):
+    def set_period(self, input):
         self.period = int(input)
 
-    def set_pga(self,input):
+    def set_pga(self, input):
         if input in pga_values:
             self.dev_mode = input
             return 1
@@ -136,3 +145,42 @@ def get_command():
 
 def twos_complement(value, bitLength):
     return hex(value & (2 ** bitLength - 1))
+
+class HETWindow(QtWidgets.QMainWindow):
+    #TODO add characteristic and packet printouts
+    def __init__(self, *args, **kwargs):
+        super(HETWindow, self).__init__(*args, **kwargs)
+        # Load the UI Page
+        uic.loadUi('Basic_CP_GUI.ui', self)  # From QTDesigner
+        self.connectButton.clicked.connect(self.get_device)  # Connect button
+        self.actionQuit.triggered.connect(self.close) # File->Quit
+        self.connect_button = 0
+        self.device_name = "None"
+        self.plot_data = []
+        self.line_array = []
+        for i in range(5):
+            self.line_array.append(self.plotWidget.plot([], pen=(i, 5)))
+
+    def plot(self, data):
+        """Plot single line"""
+        self.plot_data.append(data)
+        self.plotWidget.plot(self.plot_data)
+
+    def plot_all(self, plot_list):
+        # fast update of all data
+        for i, data in enumerate(plot_list):
+            self.line_array[i].setData(data)
+
+    def get_device(self):
+        """Connect button press callback, retrieves device name from text box and sets flag"""
+        self.connect_button = 1
+        self.device_name = self.deviceEntry.text()
+
+    def button_ack(self):
+        """Clear button press flag"""
+        self.connect_button = 0
+
+    def display_status(self, msg):
+        """Display messages"""
+        self.statusDisp.setText(msg)
+
