@@ -1,5 +1,10 @@
+from customperipheral import CustomPeripheral
+from PyQt5 import QtWidgets, uic
+from ctypes import *
+
 # define constants here
 dev_modes = ['idle', 'run', 'save', 'dump']
+data_modes = ['PH_AMP']
 pstat_modes = ['CA', 'CV']
 rtia_values = [
     'External', '200', '1k', '2k', '3k',
@@ -12,14 +17,9 @@ pga_values = [1, 1.5, 2, 4, 9]
 
 
 class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
-    SYSCFG_UUID = "f000abcd-0451-4000-b000-000000000000"
-    CHAR1_UUID = "f00062d2-0451-4000-b000-000000000000"
-    CHAR2_UUID = "f00044dc-0451-4000-b000-000000000000"
-    CHAR3_UUID = "f0003c36-0451-4000-b000-000000000000"
-    CHAR4_UUID = "f0003a36-0451-4000-b000-000000000000"
-    CHAR5_UUID = "f00030d8-0451-4000-b000-000000000000"
 
     def __init__(self):
+        super(HET2Device, self).__init__()
         self.id = 0
         self.dev_mode = 'idle'
         self.pstat_mode = 'CA'
@@ -30,13 +30,29 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
         self.v_ref = 1.82
         self.amp_data = []
         self.ph_data = []
-        self.batt = []
+        self.batt_data = []
+        self.cv_voltage = []
+        self.cv_data = []
+        self.char_list = [self.CHAR1,self.CHAR2,self.CHAR3,self.CHAR4,self.CHAR5]
 
-    def add_amp(self, data):
-        self.amp_data.append(calc_amp(data))
+    def update_char_list(self):
+        self.char_list = [self.CHAR1,self.CHAR2,self.CHAR3,self.CHAR4,self.CHAR5]
 
-    def add_ph(self, data):
-        self.ph_data.append(calc_v(data))
+    def parse_het(self, packet, mode):
+        if mode == "AMPPH":
+            for i in range(0, 80, 4):
+                data = packet[i:i + 4]
+                if (i/4)%2 == 0: #even packets contain pH data
+                    self.amp_data.append(hex2float(data[::-1].hex()))
+                else:
+                    self.ph_data.append(hex2float(data[::-1].hex()))
+
+
+    def add_amp(self, data): # no longer used
+        self.amp_data.append(calc_amp(data, self.r_tia, self.pga_gain,self.v_ref))
+
+    def add_ph(self, data): # no longer used
+        self.ph_data.append(calc_amp(data, self.r_tia, self.pga_gain,self.v_ref))
 
     def add_batt(self, data):
         self.batt.append(data)
@@ -71,10 +87,10 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             print("Invalid RTIA value.")
             return 0
 
-    def set_period(self,input):
+    def set_period(self, input):
         self.period = int(input)
 
-    def set_pga(self,input):
+    def set_pga(self, input):
         if input in pga_values:
             self.dev_mode = input
             return 1
@@ -82,14 +98,15 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             print("Invalid PGA value.")
             return 0
 
+    def get_sender(self, sender):
+        if sender in self.char_list:
+            return self.char_list.index(sender)
+
     def gen_cmd_str(self):
         return '0000' + cnv_modes(self.dev_mode, self.pstat_mode) + cnv_bias(self.bias) + cnv_tia(self.r_tia) + str(hex(self.period))[2:].zfill(2) + cnv_pga(self.pga_gain)
 
-def calc_v(raw_data, r_tia, pga_gain, v_ref):
-    return (raw_data - 32768) / 32768 * (v_ref / pga_gain) * (1.835 / 1.82)
 
-
-def calc_amp(raw_data, r_tia, pga_gain, v_ref):
+def calc_amp(raw_data, r_tia, pga_gain, v_ref): #not currently used, current and voltage calculated on board
     return calc_v(raw_data, r_tia, pga_gain, v_ref) * -1000000
 
 
@@ -125,14 +142,76 @@ def cnv_pga(pga):
     return pga_str
 
 
-def get_command():
-    global global_command, state
-    print('Enter \'help\' for a list of possible commands and \'info\' to get current device status.')
-    global_command = raw_input('Please enter a command:')
-    global_command = global_command.rstrip()
-    # print(global_command)
-    return
-
-
 def twos_complement(value, bitLength):
     return hex(value & (2 ** bitLength - 1))
+
+
+def hex2float(s):
+    i = int(s, 16)                   # convert from hex to a Python int
+    cp = pointer(c_int(i))           # make this into a c integer
+    fp = cast(cp, POINTER(c_float))  # cast the int pointer to a float pointer
+    return fp.contents.value         # dereference the pointer, get the float
+
+
+
+class HETWindow(QtWidgets.QMainWindow):
+    #TODO add characteristic and packet printouts
+    def __init__(self, *args, **kwargs):
+        super(HETWindow, self).__init__(*args, **kwargs)
+        # Load the UI Page
+        uic.loadUi('HET2_Gui.ui', self)  # From QTDesigner
+        self.connectButton.clicked.connect(self.get_device)  # Connect button
+        self.actionQuit.triggered.connect(self.close) # File->Quit
+        self.connect_button = 0
+        self.update_button = 0
+        self.start_button = 0
+        self.stop_button = 0
+        self.device_name = "None"
+        self.empty_plot = self.plotWidget.plot([])
+        self.ca_plot = self.plotWidget.plot([], name='CA (mA)', pen = 'c')
+        self.ph_plot = self.plotWidget.plot([], name='pH (V)', pen = 'm')
+        self.cv_plot = self.plotWidget.plot([], name='CV (mA)')
+        self.batt_plot = self.plotWidget.plot([], name='Batery (V)')
+        self.plot_mode = "CA_PH"
+
+
+    def update_plot(self, het):
+        if self.plot_mode == "CA_PH":
+            self.ca_plot.setData(het.amp_data)
+            self.ph_plot.setData(het.ph_data)
+        elif self.plot_mode == "CV":
+            self.cv_plot.setData(het.cv_voltage, het.cv_data)
+
+    def get_device(self):
+        """Connect button press callback, retrieves device name from text box and sets flag"""
+        self.connect_button = 1
+        self.device_name = self.deviceEntry.text()
+
+    def update_settings(self):
+        self.update_button = 1
+
+    def start_requested(self):
+        self.start_button = 1
+
+    def stop_requested(self):
+        self.stop_button = 1
+
+    def button_ack(self,button):
+        """Clear button press flag"""
+        if button == "connect":
+            self.connect_button = 0
+        elif button == "update":
+            self.update_button = 0
+        elif button == "start":
+            self.start_button = 0
+        elif button == "stop":
+            self.stop_button = 0
+
+
+
+
+    def display_status(self, msg):
+        """Display messages"""
+        self.statusDisp.setText(msg)
+
+

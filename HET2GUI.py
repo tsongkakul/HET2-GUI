@@ -4,7 +4,7 @@ Tanner Songkakul
 CustomPeripheralGUI.py
 
 Uses bleak and PyQT to connect to a CC2642 Launchpad running Custom Peripheral
-and plot data on each characteristics.
+and plot data on each characteristics. Utilizes single-thread asyncio loop which acts as a scheduler.
 
 Requires bleak, pyqt, qasync and included customperipheral library
 """
@@ -13,24 +13,29 @@ from PyQt5 import QtWidgets
 import sys
 import asyncio
 from qasync import QEventLoop
-import customperipheral as cplib
+from het2 import HET2Device
+from het2 import HETWindow
 from bleak import BleakClient
 from bleak import discover
 
 # GLOBALS
-#TODO: find a better way to use this with the notification handler without using as global
-cp = cplib.CustomPeripheral()
+# TODO: find a better way to use this with the notification handler without using as global
+cp = HET2Device()
+
 
 def notification_handler(sender, data):
     """Handle incoming packets."""
     cp.datacount = cp.datacount + 1
-    char = cp.parse_data(sender, data)
+    if sender == cp.CHAR2:
+        cp.parse_het(data, "AMPPH")
+    print(cp.amp_data[-1])
+    print(cp.ph_data[-1])
 
 
 async def plot_handler(cp, win):
     """Asynchronously update the plot each second """
-    while 1: # TODO: remove loop here to allow disconnect/reconnect
-        win.plot_all(cp.ALL_DATA)
+    while 1:  # TODO: remove loop here to allow disconnect/reconnect
+        win.update_plot(cp)
         await asyncio.sleep(1)
 
 
@@ -38,16 +43,15 @@ async def button_wait(win):
     """Polling for button press"""
     while not win.connect_button:  # wait for button press flag to be set in GUI
         await asyncio.sleep(.01)
-    win.button_ack() # clear button press flag
-
+    win.button_ack("connect")  # clear button press flag
 
 async def find_device(win, cp):
     """Search for device after button press"""
     await button_wait(win)  # Wait for button press
     win.display_status("Scanning...")
     devices = await discover()  # Discover devices on BLE
-    cp.set_name(win.device_name) # Get device name from text input window in GUI
-    device_found = cp.get_address(devices) #  Check if device in list
+    cp.set_name(win.device_name)  # Get device name from text input window in GUI
+    device_found = cp.get_address(devices)  # Check if device in list
     return device_found
 
 
@@ -55,7 +59,7 @@ async def enable_notif(cp, client):
     """Start notifications on all characteristics"""
     for char in cp.CHAR_LIST:
         await client.start_notify(char, notification_handler)
-    #print("Notifications enabled")
+    # print("Notifications enabled")
 
 
 async def disable_notif(cp, client):
@@ -66,13 +70,13 @@ async def disable_notif(cp, client):
 
 async def run(win, cp, loop):
     """Main asyncio loop"""
-    while 1: # TODO replace this loop to allow for disconnect/reconnect
+    while 1:  # TODO replace this loop to allow for disconnect/reconnect
         # while not cp.CONNECTED:
-        dev_found = await find_device(win, cp) # Find device address
+        dev_found = await find_device(win, cp)  # Find device address
         if dev_found:
             win.display_status("Device {} found! Connecting...".format(cp.NAME))
             async with BleakClient(cp.ADDR, loop=loop) as client:
-                x = await client.is_connected() # Attempt device connection TODO add error messages
+                x = await client.is_connected()  # Attempt device connection TODO add try except with error msg
                 win.display_status("Connected!")
                 await enable_notif(cp, client)
                 await plot_handler(cp, win)
@@ -86,7 +90,7 @@ def main():
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)  # NEW must set the event loop
 
-    win = cplib.MainWindow()
+    win = HETWindow()
     win.show()
 
     with loop:  ## context manager calls .close() when loop completes, and releases all resources
