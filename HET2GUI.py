@@ -20,22 +20,23 @@ from bleak import discover
 
 # GLOBALS
 # TODO: find a better way to use this with the notification handler without using as global
-cp = HET2Device()
+het = HET2Device()
 
 
 def notification_handler(sender, data):
     """Handle incoming packets."""
-    cp.datacount = cp.datacount + 1
-    if sender == cp.SYSCFG:
-        print("Config ="+data)
-    if sender == cp.CHAR2:
-        cp.parse_het(data, "AMPPH")
+    print(sender,data)
+    het.datacount = het.datacount + 1
+    if sender == het.CHAR1:
+        het.parse_info(data)
+    if sender == het.CHAR2:
+        het.parse_data(data, "AMPPH")
 
-async def plot_handler(cp, win):
+async def plot_handler(het, win):
     """Asynchronously update the plot each second """
     while 1:  # TODO: remove loop here to allow disconnect/reconnect
-        win.update_plot(cp)
-        await asyncio.sleep(1)
+        win.update_plot(het)
+        await asyncio.sleep(5)
 
 
 async def button_wait(win):
@@ -44,42 +45,42 @@ async def button_wait(win):
         await asyncio.sleep(.01)
     win.button_ack("connect")  # clear button press flag
 
-async def find_device(win, cp):
+async def find_device(win, het):
     """Search for device after button press"""
     await button_wait(win)  # Wait for button press
     win.display_status("Scanning...")
     devices = await discover()  # Discover devices on BLE
-    cp.set_name(win.device_name)  # Get device name from text input window in GUI
-    device_found = cp.get_address(devices)  # Check if device in list
+    het.set_name(win.device_name)  # Get device name from text input window in GUI
+    device_found = het.get_address(devices)  # Check if device in list
     return device_found
 
 
-async def enable_notif(cp, client):
+async def enable_notif(het, client):
     """Start notifications on all characteristics"""
-    for char in cp.CHAR_LIST:
+    for char in het.CHAR_LIST:
         await client.start_notify(char, notification_handler)
     # print("Notifications enabled")
 
 
-async def disable_notif(cp, client):
+async def disable_notif(het, client):
     """Stop notifications on all characteristics"""
-    for char in cp.CHAR_LIST:
+    for char in het.CHAR_LIST:
         await client.stop_notify(char, notification_handler)
 
 
-async def run(win, cp, loop):
+async def run(win, het, loop):
     """Main asyncio loop"""
     while 1:  # TODO replace this loop to allow for disconnect/reconnect
         # while not cp.CONNECTED:
-        dev_found = await find_device(win, cp)  # Find device address
+        dev_found = await find_device(win, het)  # Find device address
         if dev_found:
-            win.display_status("Device {} found! Connecting...".format(cp.NAME))
-            async with BleakClient(cp.ADDR, loop=loop) as client:
+            win.display_status("Device {} found! Connecting...".format(het.NAME))
+            async with BleakClient(het.ADDR, loop=loop) as client:
                 x = await client.is_connected()  # Attempt device connection TODO add try except with error msg
                 win.display_status("Connected!")
-                await enable_notif(cp, client)
-                await plot_handler(cp, win)
-                await disable_notif(cp, client)
+                await enable_notif(het, client)
+                await plot_handler(het, win)
+                await disable_notif(het, client)
         else:
             win.display_status("ERROR: Device not found.")
 
@@ -93,7 +94,7 @@ def main():
     win.show()
 
     with loop:  ## context manager calls .close() when loop completes, and releases all resources
-        loop.run_until_complete(run(win, cp, loop))
+        loop.run_until_complete(run(win, het, loop))
 
 
 if __name__ == '__main__':
