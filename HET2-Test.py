@@ -13,29 +13,29 @@ print(test_array)
 class HET2Tests(unittest.TestCase):
 
     def test_cnvmodes(self):
-        self.assertEqual(het2.cnv_modes('idle','CA'),'00')
+        self.assertEqual(het2.cnv_modes('idle','CA_PH'),'00')
 
     def test_cnvbias(self):
-        self.assertEqual(het2.cnv_bias(0),'00')
+        self.assertEqual(het2.cnv_bias(0),'80')
 
     def test_gencmd(self):
-        self.assertEqual(het.gen_cmd_str(),'00000000140101')
+        self.assertEqual(het.gen_cmd_str(),'00000080140101')
 
     def test_run(self):
         het.set_devmode('run')
         het.set_bias(-1.1)
         het.set_rtia('200')
         het.set_period(2)
-        self.assertEqual(het.gen_cmd_str(),'00001092010201')
+        self.assertEqual(het.gen_cmd_str(),'00001012010201')
 
-    def test_amp_parsing(self):
-        het.parse_het(bytearray(test_array),"AMPPH")
-        self.assertEqual(amp_sol, het.amp_data)
-
-    def test_ph_parsing(self):
-        het.ph_data = []
-        het.parse_het(bytearray(test_array),"AMPPH")
-        self.assertEqual(ph_sol, het.ph_data)
+    # def test_amp_parsing(self):
+    #     het.parse_het(bytearray(test_array),"AMPPH")
+    #     self.assertEqual(amp_sol, het.amp_data)
+    #
+    # def test_ph_parsing(self):
+    #     het.ph_data = []
+    #     het.parse_het(bytearray(test_array),"AMPPH")
+    #     self.assertEqual(ph_sol, het.ph_data)
 
 if __name__ == '__main__':
     unittest.main()

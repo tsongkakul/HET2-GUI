@@ -26,11 +26,10 @@ cp = HET2Device()
 def notification_handler(sender, data):
     """Handle incoming packets."""
     cp.datacount = cp.datacount + 1
+    if sender == cp.SYSCFG:
+        print("Config ="+data)
     if sender == cp.CHAR2:
         cp.parse_het(data, "AMPPH")
-    print(cp.amp_data[-1])
-    print(cp.ph_data[-1])
-
 
 async def plot_handler(cp, win):
     """Asynchronously update the plot each second """
