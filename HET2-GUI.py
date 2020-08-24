@@ -30,9 +30,9 @@ def notification_handler(sender, data):
     # TODO this still drops packets
     #print("Data received")
     #print(sender)
-    if sender == cp.CHAR1:
+    if sender[4:8] == cp.CHAR1[4:8]:
         cp.parse_info(data)
-    if sender == cp.CHAR2:
+    if sender[4:8] == cp.CHAR2[4:8]:
         cp.parse_data(data, "AMPPH")
 
 class MainWindow(QMainWindow):
