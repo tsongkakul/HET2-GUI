@@ -27,9 +27,9 @@
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>50</y>
-      <width>231</width>
+      <x>370</x>
+      <y>40</y>
+      <width>281</width>
       <height>151</height>
      </rect>
     </property>
@@ -42,7 +42,7 @@
     <widget class="QLabel" name="deviceLabel">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>90</x>
        <y>10</y>
        <width>111</width>
        <height>20</height>
@@ -67,22 +67,22 @@
     <widget class="QPushButton" name="connectButton">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>120</y>
-       <width>75</width>
+       <x>90</x>
+       <y>110</y>
+       <width>121</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>Connect</string>
+      <string>Connect and Start</string>
      </property>
     </widget>
     <widget class="QLabel" name="statusDisp">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>80</y>
-       <width>211</width>
+       <x>30</x>
+       <y>70</y>
+       <width>221</width>
        <height>31</height>
       </rect>
      </property>
@@ -102,9 +102,9 @@
     <widget class="QComboBox" name="scanBox">
      <property name="geometry">
       <rect>
-       <x>18</x>
+       <x>30</x>
        <y>40</y>
-       <width>131</width>
+       <width>161</width>
        <height>22</height>
       </rect>
      </property>
@@ -112,7 +112,7 @@
     <widget class="QPushButton" name="scanButton">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>200</x>
        <y>40</y>
        <width>51</width>
        <height>23</height>
@@ -122,13 +122,35 @@
       <string>Scan</string>
      </property>
     </widget>
+    <widget class="QLabel" name="statusDisp_2">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>50</y>
+       <width>211</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Panel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="text">
+      <string>Not connected</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_2">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>40</y>
-      <width>261</width>
+      <x>660</x>
+      <y>30</y>
+      <width>311</width>
       <height>131</height>
      </rect>
     </property>
@@ -141,9 +163,9 @@
     <widget class="QLabel" name="devStatusDisp">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>60</x>
        <y>40</y>
-       <width>47</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -163,7 +185,7 @@
     <widget class="QLabel" name="statusLabel0">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>40</y>
        <width>47</width>
        <height>21</height>
@@ -179,13 +201,13 @@
       <string>Status</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
     <widget class="QLabel" name="devNumLabel">
      <property name="geometry">
       <rect>
-       <x>16</x>
+       <x>10</x>
        <y>10</y>
        <width>51</width>
        <height>20</height>
@@ -201,15 +223,15 @@
       <string> Device #</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
     <widget class="QLabel" name="devNumDisp">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>70</x>
        <y>10</y>
-       <width>47</width>
+       <width>81</width>
        <height>21</height>
       </rect>
      </property>
@@ -229,9 +251,9 @@
     <widget class="QLabel" name="devModeDisp">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>60</x>
        <y>70</y>
-       <width>47</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -251,7 +273,7 @@
     <widget class="QLabel" name="modeLabel0">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>70</y>
        <width>47</width>
        <height>13</height>
@@ -267,7 +289,7 @@
       <string>Mode</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
     <widget class="QProgressBar" name="progressBar">
@@ -275,7 +297,7 @@
       <rect>
        <x>80</x>
        <y>100</y>
-       <width>161</width>
+       <width>221</width>
        <height>23</height>
       </rect>
      </property>
@@ -289,9 +311,9 @@
     <widget class="QLabel" name="devBiasDisp">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>210</x>
        <y>10</y>
-       <width>47</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -311,9 +333,9 @@
     <widget class="QLabel" name="devGainDisp">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>210</x>
        <y>40</y>
-       <width>47</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -333,7 +355,7 @@
     <widget class="QLabel" name="biasLabel0">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>170</x>
        <y>10</y>
        <width>31</width>
        <height>16</height>
@@ -355,7 +377,7 @@
     <widget class="QLabel" name="gainLabel0">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>150</x>
        <y>40</y>
        <width>47</width>
        <height>13</height>
@@ -377,7 +399,7 @@
     <widget class="QLabel" name="battLabel0">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>100</y>
        <width>47</width>
        <height>13</height>
@@ -399,9 +421,9 @@
     <widget class="QLabel" name="devPeriodDisp">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>210</x>
        <y>70</y>
-       <width>47</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -421,7 +443,7 @@
     <widget class="QLabel" name="periodLabel0">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>150</x>
        <y>70</y>
        <width>47</width>
        <height>16</height>
@@ -445,10 +467,10 @@
    <widget class="QFrame" name="frame_3">
     <property name="geometry">
      <rect>
-      <x>660</x>
-      <y>10</y>
-      <width>291</width>
-      <height>191</height>
+      <x>30</x>
+      <y>20</y>
+      <width>331</width>
+      <height>171</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -457,466 +479,12 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QPushButton" name="startButton">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>160</y>
-       <width>81</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>170</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Light">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>255</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Midlight">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>212</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Dark">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>85</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Mid">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>113</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Text">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="BrightText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>170</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Shadow">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="AlternateBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>127</red>
-           <green>212</green>
-           <blue>127</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ToolTipBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>220</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ToolTipText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>170</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Light">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>255</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Midlight">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>212</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Dark">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>85</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Mid">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>113</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Text">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="BrightText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>170</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Shadow">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="AlternateBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>127</red>
-           <green>212</green>
-           <blue>127</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ToolTipBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>220</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ToolTipText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>85</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Button">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>170</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Light">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>255</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Midlight">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>212</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Dark">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>85</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Mid">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>113</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Text">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>85</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="BrightText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>85</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Base">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>170</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Window">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>170</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="Shadow">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="AlternateBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>170</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ToolTipBase">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>220</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="ToolTipText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="text">
-      <string>Start</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="stopButton">
-     <property name="geometry">
-      <rect>
-       <x>210</x>
-       <y>160</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Stop</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="updateButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>160</y>
-       <width>101</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Update Settings</string>
-     </property>
-    </widget>
     <widget class="QComboBox" name="gainCombo">
      <property name="geometry">
       <rect>
-       <x>200</x>
+       <x>238</x>
        <y>80</y>
-       <width>69</width>
+       <width>71</width>
        <height>22</height>
       </rect>
      </property>
@@ -1059,9 +627,9 @@
     <widget class="QLineEdit" name="biasEntry">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>130</x>
        <y>80</y>
-       <width>61</width>
+       <width>81</width>
        <height>20</height>
       </rect>
      </property>
@@ -1069,7 +637,7 @@
     <widget class="QComboBox" name="dewModeCombo">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>100</x>
        <y>30</y>
        <width>69</width>
        <height>22</height>
@@ -1084,7 +652,7 @@
     <widget class="QComboBox" name="pstatModeCombo">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>180</x>
        <y>30</y>
        <width>69</width>
        <height>22</height>
@@ -1099,7 +667,7 @@
     <widget class="QLabel" name="modeLabel">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>150</x>
        <y>10</y>
        <width>47</width>
        <height>13</height>
@@ -1112,7 +680,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Mode</string>
+      <string>Settings</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -1149,7 +717,7 @@
     <widget class="QLabel" name="biasLabel">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>150</x>
        <y>60</y>
        <width>47</width>
        <height>13</height>
@@ -1174,7 +742,7 @@
     <widget class="QLabel" name="gainLabel">
      <property name="geometry">
       <rect>
-       <x>210</x>
+       <x>250</x>
        <y>60</y>
        <width>47</width>
        <height>13</height>
@@ -1200,8 +768,8 @@
      <property name="geometry">
       <rect>
        <x>92</x>
-       <y>120</y>
-       <width>191</width>
+       <y>140</y>
+       <width>221</width>
        <height>20</height>
       </rect>
      </property>
@@ -1210,7 +778,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>120</y>
+       <y>140</y>
        <width>71</width>
        <height>20</height>
       </rect>
@@ -1236,7 +804,7 @@
       <rect>
        <x>30</x>
        <y>80</y>
-       <width>69</width>
+       <width>81</width>
        <height>22</height>
       </rect>
      </property>
@@ -1341,13 +909,73 @@
       </property>
      </item>
     </widget>
+    <widget class="QLabel" name="filepathDisp">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>110</y>
+       <width>171</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Panel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="expLabel_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>File Path</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="browseButton">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>110</y>
+       <width>51</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Browse</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>180</y>
-      <width>261</width>
+      <x>660</x>
+      <y>170</y>
+      <width>311</width>
       <height>20</height>
      </rect>
     </property>
@@ -1383,7 +1011,7 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>410</x>
+      <x>460</x>
       <y>0</y>
       <width>121</width>
       <height>41</height>
@@ -1410,7 +1038,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>560</x>
       <y>20</y>
       <width>71</width>
       <height>20</height>
@@ -1435,13 +1063,13 @@
     </property>
    </widget>
    <zorder>frame</zorder>
-   <zorder>label_2</zorder>
    <zorder>frame_2</zorder>
    <zorder>plotWidget</zorder>
    <zorder>frame_3</zorder>
    <zorder>label</zorder>
    <zorder>label_3</zorder>
    <zorder>label_4</zorder>
+   <zorder>label_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

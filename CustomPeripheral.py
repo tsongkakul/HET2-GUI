@@ -35,18 +35,18 @@ class CustomPeripheral(object):
 
     def parse_data(self, sender,data):
         """For basic custom peripheral with data in first byte only, extend/replace as needed"""
-        if sender == self.CHAR1:
+        if sender[4:8] == self.CHAR1[4:8]:
             self.CHAR1_DATA.append(int(data[0]))
             return 1
-        elif sender == self.CHAR2:
+        elif sender[4:8] == self.CHAR2[4:8]:
             self.CHAR2_DATA.append(int(data[0]))
             return 2
-        elif sender == self.CHAR3:
+        elif sender[4:8] == self.CHAR3[4:8]:
             self.CHAR3_DATA.append(int(data[0]))
             return 3
-        elif sender == self.CHAR4:
+        elif sender[4:8] == self.CHAR4[4:8]:
             self.CHAR4_DATA.append(int(data[0]))
             return 4
-        elif sender == self.CHAR5:
+        elif sender[4:8] == self.CHAR5[4:8]:
             self.CHAR5_DATA.append(int(data[0]))
             return 5
