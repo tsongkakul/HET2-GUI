@@ -30,9 +30,8 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
     # HET2 Object using UUIDs from custom peripheral
     #
     # Packet Structures
-    # Char1- System Config Data v(10 Bytes)
-    #
-    #
+    # Syscfg- System config command
+    # Char1- System Config Info (20 Bytes)
     # Char2- Electrochemical Data (81 Bytes)
     #
     # AMP-PH Mode
@@ -139,7 +138,7 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             return self.char_list.index(sender)
 
     def gen_cmd_str(self):
-        return '0000' + cnv_modes(self.dev_mode_new, self.pstat_mode_new) + cnv_bias(self.bias) + cnv_tia(self.r_tia) + str(hex(self.period))[2:].zfill(2) + cnv_pga(self.pga_gain)
+        return '0c00' + cnv_modes(self.dev_mode_new, self.pstat_mode_new)  + cnv_tia(self.r_tia)+ cnv_bias(self.bias) + str(hex(self.period))[2:].zfill(2) + cnv_pga(self.pga_gain)
 
     def set_file_info(self,path,file):
         self.file_loc = ''.join((path, '/', file, time.strftime("%Y%m%d-%H%M%S"), '.csv'))

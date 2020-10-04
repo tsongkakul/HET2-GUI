@@ -129,7 +129,7 @@ class MainWindow(QMainWindow):
     async def start_task(self,client):
         try:
             win.display_status("Starting Device")
-            await client.write_gatt_char(cp.SYSCFG, bytearray.fromhex(20 * 'f'))
+            await client.write_gatt_char(cp.SYSCFG, '{:>20d}'.format(bytearray.fromhex(cp.gen_cmd_str())))
             win.display_status("Started!")
         except Exception:
             win.display_status("Error!")
