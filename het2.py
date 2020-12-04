@@ -6,23 +6,23 @@ from os import getcwd
 import csv, time, string
 
 # define constants here
-dev_modes = ['idle', 'run', 'save', 'dump']
-pstat_modes = ['CA_PH', 'CV']
+dev_modes = ['Idle', 'Stream', 'Save', 'Dump']
+pstat_modes = ['CA/PH', 'CV']
 rtia_values = [
     'External', '200', '1k', '2k', '3k',
     '4k', '6k', '8k', '10k', '12k',
     '16k', '20k', '24k', '30k', '32k',
     '40k', '48k', '64k', '85k', '96k',
     '100k', '120k', '128k', '160k', '196k',
-    '256k', '512k'] # this needs to match
-period_values = [
-     0.05, 0.1, 0.125, 0.1667, 0.25,
-     0.5, 1, 2, 2.5, 5,
-     10, 20, 25, 30, 50,
-     60, 120, 150, 300, 600
-    ]
+    '256k', '512k']  # this needs to match preset options from AD5940.h
+odr_values = [
+    0.05, 0.1, 0.125, 0.1667, 0.25,
+    0.5, 1, 2, 2.5, 5,
+    10, 20, 25, 30, 50,
+    60, 120, 150, 300, 600
+] # this needs to match GUI options
 
-pga_values = [1, 1.5, 2, 4, 9]
+pga_values = [1, 1.5, 2, 4, 9] # this needs to match preset options from AD5940.h
 
 
 class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
@@ -30,9 +30,8 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
     # HET2 Object using UUIDs from custom peripheral
     #
     # Packet Structures
-    # Char1- System Config Data v(10 Bytes)
-    #
-    #
+    # Syscfg- System config command
+    # Char1- System Config Info (20 Bytes)
     # Char2- Electrochemical Data (81 Bytes)
     #
     # AMP-PH Mode
@@ -40,16 +39,16 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
     def __init__(self):
         super(HET2Device, self).__init__()
         self.id = 0
-        self.dev_mode = 'idle'
+        self.dev_mode = 'Idle'
         self.dev_mode_new = self.dev_mode
         self.pstat_mode = 'CA_PH'
         self.pstat_mode_new = self.pstat_mode
-        self.bias = 0 # between -1.27 and 1.27V
-        self.bias_new = self.bias # between -1.27 and 1.27V
+        self.bias = 0  # between -1.27 and 1.27V
+        self.bias_new = self.bias  # between -1.27 and 1.27V
         self.r_tia = '100k'
         self.r_tia_new = self.r_tia
-        self.period = 1 # index in lookup table
-        self.period_new = self.period
+        self.odr = 1
+        self.odr_new = self.odr
         self.pga_gain = 1.5
         self.pga_gain_new = self.pga_gain
         self.v_ref = 1.82
@@ -58,26 +57,27 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
         self.batt_data = []
         self.cv_voltage = []
         self.cv_data = []
-        self.char_list = [self.CHAR1,self.CHAR2,self.CHAR3,self.CHAR4,self.CHAR5]
-        self.file_loc =""
-        self.data_buffer =[['CA', 'pH']]
+        self.char_list = [self.CHAR1, self.CHAR2, self.CHAR3, self.CHAR4, self.CHAR5]
+        self.file_loc = ""
+        self.data_buffer = [['CA', 'pH']]
 
     def update_char_list(self):
-        self.char_list = [self.CHAR1,self.CHAR2,self.CHAR3,self.CHAR4,self.CHAR5]
+        self.char_list = [self.CHAR1, self.CHAR2, self.CHAR3, self.CHAR4, self.CHAR5]
 
-    def parse_info(self,packet):
+    def parse_info(self, packet):
+        print(packet)
         self.id = int(packet[0])
-        self.dev_mode = dev_modes[int(packet[2]>>4)]
+        self.dev_mode = dev_modes[int(packet[2] >> 4)]
         self.pstat_mode = pstat_modes[int(packet[2] & 0x0F)]
-        self.bias = (int(packet[3])-128)/100
+        self.bias = (int(packet[3]) - 128) / 100
         self.r_tia = rtia_values[int(packet[4])]
-        self.period = period_values[int(packet[5])]
+        self.odr = odr_values[int(packet[5])]
 
     def parse_data(self, packet, mode):
         if self.pstat_mode == 'CA_PH':
             for i in range(0, 80, 4):
                 data = packet[i:i + 4]
-                if (i/4)%2 == 0: #even packets contain pH data
+                if (i / 4) % 2 == 0:  # even packets contain pH data
                     self.amp_data.append(hex2float(data[::-1].hex()))
                 else:
                     self.ph_data.append(hex2float(data[::-1].hex()))
@@ -89,46 +89,46 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
     def add_batt(self, data):
         self.batt.append(data)
 
-    def set_devmode(self, input):
-        if input in dev_modes:
-            self.dev_mode = input
+    def set_devmode(self, try_input):
+        if try_input in dev_modes:
+            self.dev_mode_new = try_input
             return 1
         else:
             print("Invalid device mode.")
             return 0
 
-    def set_pstatmode(self, input):
-        if input in pstat_modes:
-            self.pstat_mode_new = input
+    def set_pstatmode(self, try_input):
+        if try_input in pstat_modes:
+            self.pstat_mode_new = try_input
             return 1
         else:
             print("Invalid potentiostat mode.")
             return 0
 
-    def set_bias(self, input):
-        if (abs(input) < 1.28):
-            self.bias_new = input
+    def set_bias(self, try_input):
+        if abs(try_input) < 1.28:
+            self.bias_new = try_input
         else:
             print("Invalid bias, bias must be between -1.27 and 1.27")
 
-    def set_rtia(self, input):
-        if input in rtia_values:
-            self.r_tia_new = input
+    def set_rtia(self, try_input):
+        if try_input in rtia_values:
+            self.r_tia_new = try_input
             return 1
         else:
             print("Invalid RTIA value.")
             return 0
 
-    def set_period(self, input):
-        if input in period_values:
-            self.period_new = input
+    def set_odr(self, try_input):
+        if try_input in odr_values:
+            self.odr_new = odr_values.index(try_input)
             return 1
         else:
-            print("Invalid period value.")
+            print("Invalid ODR value.")
 
-    def set_pga(self, input):
-        if input in pga_values:
-            self.pga_new = input
+    def set_pga(self, try_input):
+        if try_input in pga_values:
+            self.pga_gain_new = try_input
             return 1
         else:
             print("Invalid PGA value.")
@@ -139,9 +139,10 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             return self.char_list.index(sender)
 
     def gen_cmd_str(self):
-        return '0000' + cnv_modes(self.dev_mode_new, self.pstat_mode_new) + cnv_bias(self.bias) + cnv_tia(self.r_tia) + str(hex(self.period))[2:].zfill(2) + cnv_pga(self.pga_gain)
+        return '0c00' + cnv_modes(self.dev_mode_new, self.pstat_mode_new) + cnv_bias(self.bias_new) + cnv_tia(
+            self.r_tia_new) + str(hex(self.odr_new))[2:].zfill(2) + cnv_pga(self.pga_gain_new)
 
-    def set_file_info(self,path,file):
+    def set_file_info(self, path, file):
         self.file_loc = ''.join((path, '/', file, time.strftime("%Y%m%d-%H%M%S"), '.csv'))
 
     def save_data(self):
@@ -164,7 +165,8 @@ def cnv_modes(dev_mode, pstat_mode):
 
 
 def cnv_bias(bias):
-    return str(hex(int(bias*100)+128)[2:]).zfill(2)
+    print("Bias: {}".format(bias))
+    return str(hex(int(bias * 100) + 128)[2:]).zfill(2)
 
 
 def cnv_tia(rtia):
@@ -173,6 +175,7 @@ def cnv_tia(rtia):
     except ValueError:
         print("Invalid pstat mode.")
     return tia_str
+
 
 def cnv_pga(pga):
     try:
@@ -187,8 +190,7 @@ def twos_complement(value, bitLength):
 
 
 def hex2float(s):
-    i = int(s, 16)                   # convert from hex to a Python int
-    cp = pointer(c_int(i))           # make this into a c integer
+    i = int(s, 16)  # convert from hex to a Python int
+    cp = pointer(c_int(i))  # make this into a c integer
     fp = cast(cp, POINTER(c_float))  # cast the int pointer to a float pointer
-    return fp.contents.value         # dereference the pointer, get the float
-
+    return fp.contents.value  # dereference the pointer, get the float

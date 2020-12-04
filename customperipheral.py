@@ -32,6 +32,9 @@ class CustomPeripheral(object):
         self.ALL_DATA = [self.CHAR1_DATA, self.CHAR2_DATA, self.CHAR3_DATA, self.CHAR4_DATA, self.CHAR5_DATA]
         self.datacount = 0
         self.CONNECTED = 0
+        self.SYSCFGLEN = 10
+        self.CHAR1LEN = 20
+        self.CHAR2LEN = 82
 
     def parse_data(self, sender,data):
         """For basic custom peripheral with data in first byte only, extend/replace as needed"""
