@@ -25,7 +25,7 @@ class HET2Tests(unittest.TestCase):
         het.set_devmode('run')
         het.set_bias(-1.1)
         het.set_rtia('200')
-        het.set_period(2)
+        het.set_odr(2)
         self.assertEqual(het.gen_cmd_str(),'00001012010201')
 
     # def test_amp_parsing(self):

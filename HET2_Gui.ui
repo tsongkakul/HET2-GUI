@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1001</width>
     <height>800</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <widget class="PlotWidget" name="plotWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>-20</x>
       <y>210</y>
       <width>991</width>
       <height>541</height>
@@ -42,9 +42,9 @@
     <widget class="QLabel" name="deviceLabel">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>30</x>
        <y>10</y>
-       <width>111</width>
+       <width>221</width>
        <height>20</height>
       </rect>
      </property>
@@ -418,7 +418,7 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="devPeriodDisp">
+    <widget class="QLabel" name="devODRDisp">
      <property name="geometry">
       <rect>
        <x>210</x>
@@ -457,7 +457,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Period</string>
+      <string>ODR</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -490,7 +490,7 @@
      </property>
      <item>
       <property name="text">
-       <string>External</string>
+       <string>100k</string>
       </property>
      </item>
      <item>
@@ -590,11 +590,6 @@
      </item>
      <item>
       <property name="text">
-       <string>100k</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
        <string>120k</string>
       </property>
      </item>
@@ -623,6 +618,11 @@
        <string>512k</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>External</string>
+      </property>
+     </item>
     </widget>
     <widget class="QLineEdit" name="biasEntry">
      <property name="geometry">
@@ -633,8 +633,11 @@
        <height>20</height>
       </rect>
      </property>
+     <property name="text">
+      <string>-0.1</string>
+     </property>
     </widget>
-    <widget class="QComboBox" name="dewModeCombo">
+    <widget class="QComboBox" name="devModeCombo">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -660,17 +663,17 @@
      </property>
      <item>
       <property name="text">
-       <string>CA+pH</string>
+       <string>CA/PH</string>
       </property>
      </item>
     </widget>
     <widget class="QLabel" name="modeLabel">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>130</x>
        <y>10</y>
-       <width>47</width>
-       <height>13</height>
+       <width>81</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="font">
@@ -689,13 +692,13 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="periodLabel">
+    <widget class="QLabel" name="ODRLabel">
      <property name="geometry">
       <rect>
-       <x>40</x>
+       <x>30</x>
        <y>60</y>
-       <width>47</width>
-       <height>13</height>
+       <width>81</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="font">
@@ -705,7 +708,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Period</string>
+      <string>Period (s)</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -717,10 +720,10 @@
     <widget class="QLabel" name="biasLabel">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>126</x>
        <y>60</y>
-       <width>47</width>
-       <height>13</height>
+       <width>91</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="font">
@@ -730,7 +733,7 @@
       </font>
      </property>
      <property name="text">
-      <string>VBias</string>
+      <string>VBias (V)</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -742,10 +745,10 @@
     <widget class="QLabel" name="gainLabel">
      <property name="geometry">
       <rect>
-       <x>250</x>
+       <x>236</x>
        <y>60</y>
-       <width>47</width>
-       <height>13</height>
+       <width>71</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="font">
@@ -799,7 +802,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QComboBox" name="gainCombo_2">
+    <widget class="QComboBox" name="ODRCombo">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -808,6 +811,11 @@
        <height>22</height>
       </rect>
      </property>
+     <item>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </item>
      <item>
       <property name="text">
        <string>0.05</string>
@@ -1002,7 +1010,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap>../../Users/tsong/Downloads/ASSIST_greenBlack-no-shadow-sm-01.png</pixmap>
+     <pixmap>../../Users/tsong/Users/tsong/Downloads/ASSIST_greenBlack-no-shadow-sm-01.png</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -1011,7 +1019,7 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>440</x>
       <y>0</y>
       <width>121</width>
       <height>41</height>
@@ -1038,7 +1046,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>560</x>
+      <x>550</x>
       <y>20</y>
       <width>71</width>
       <height>20</height>
@@ -1076,7 +1084,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1001</width>
      <height>21</height>
     </rect>
    </property>
