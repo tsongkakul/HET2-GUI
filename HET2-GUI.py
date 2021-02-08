@@ -21,18 +21,21 @@ import bleak
 
 from bleak import BleakClient, discover
 from het2 import HET2Device
+from het2 import odr_values
 
 cp = HET2Device()
 
 
 def notification_handler(sender, data):
     """Handle incoming packets."""
-    # TODO this still drops packets
+    # TODO this still drops packets...implement buffer
     print("Data received from {}".format(sender))
-    if sender[4:8] == cp.CHAR1[4:8]:
-        cp.parse_info(data)
     if sender[4:8] == cp.CHAR2[4:8]:
+        print(len(data))
+        print(data)
         cp.parse_data(data, "AMPPH")
+    if sender[4:8] == cp.CHAR1[4:8]:
+        cp.info_packet = data
 
 
 class MainWindow(QMainWindow):
@@ -45,17 +48,17 @@ class MainWindow(QMainWindow):
         # Initialize objects and variables
         self.scan_list = []
         self.device_name = "None"
-        self.filepath = getcwd()
+        self.filepath = getcwd()+'\Data'
         self.filename = "Experiment"
         cp.set_file_info(self.filepath, self.filename)
         # Load the UI Page and QTimer
-        uic.loadUi('HET2_Gui.ui', self)  # From QTDesigner
+        uic.loadUi('HET2_Gui-v2.ui', self)  # From QTDesigner
         self.filepathDisp.setText(self.filepath)
         self.expEntry.setText(self.filename)
         self.line_array = []
         for i in range(5):
-            self.line_array.append(self.plotWidget.plot([], pen=(i, 5)))
-        self.plotWidget.addLegend()
+            self.line_array.append(self.CAplotWidget.plot([], pen=(i, 5)))
+        self.CAplotWidget.addLegend()
         self.plot_mode = "CA_PH"
         self.set_plotmode(self.plot_mode)
         self.timer = QTimer()
@@ -80,7 +83,7 @@ class MainWindow(QMainWindow):
     def get_settings(self):
         cp.set_devmode(self.devModeCombo.currentText())
         cp.set_pstatmode(self.pstatModeCombo.currentText())
-        cp.set_odr(int(self.ODRCombo.currentText()))
+        cp.set_odr(float(self.ODRCombo.currentText()))
         print(cp.odr_new)
         cp.set_bias(float(self.biasEntry.text()))
         cp.set_rtia(self.gainCombo.currentText())
@@ -105,7 +108,7 @@ class MainWindow(QMainWindow):
         if not cp.CONNECTED:
             self.scanBox.clear()
             self.scan_list = []
-            devices = await discover(30)
+            devices = await discover(10)
             # print('scan returns...')
             for i, device in enumerate(devices):
                 if device.name[0:3] == "HET":
@@ -171,10 +174,11 @@ class MainWindow(QMainWindow):
 
     async def main(self, client):
         while True:  # main loop
-            await asyncio.sleep(1)
-            await self.update_plot()
             if cp.data_buffer:
                 cp.save_data()
+            await asyncio.sleep(1)
+            await self.update_plot()
+
 
     def display_status(self, msg):
         """Display messages"""
@@ -183,25 +187,37 @@ class MainWindow(QMainWindow):
     def set_plotmode(self, new_mode):
         if new_mode == "CA_PH":
             self.plot_mode = "CA_PH"
-            self.plotWidget.setLabel(axis="left", text="Current (uA)")
-            self.plotWidget.setLabel(axis="bottom", text="Samples")
-            self.plot1 = self.plotWidget.plot([], name='CA Data (uA)', pen='y')
-            self.plot2 = self.plotWidget.plot([], name='pH Data (V)', pen='m')
+            self.CAplotWidget.setLabel(axis="left", text="Current (uA)")
+            self.CAplotWidget.setLabel(axis="bottom", text="Samples")
+            self.VPlotWidget.setLabel(axis="left", text="Voltage (V)")
+            self.VPlotWidget.setLabel(axis="bottom", text="Samples")
+            self.AccelPlotWidget.setLabel(axis="left", text="Motion")
+            self.AccelPlotWidget.setLabel(axis="bottom", text="Samples")
+            self.plot1 = self.CAplotWidget.plot([], name='CA (uA)', pen='y')
+            self.plot2 = self.VPlotWidget.plot([], name='pH (V)', pen='m')
+            self.plot3 = self.VPlotWidget.plot([], name='Temp (V)', pen='c')
+            self.plot4 = self.AccelPlotWidget.plot([], name='Accelerometer X Data', pen='y')
+            self.plot5 = self.AccelPlotWidget.plot([], name='Accelerometer Y Data', pen='m')
+            self.plot6 = self.AccelPlotWidget.plot([], name='Accelerometer Z Data', pen='c')
             # TODO add second axes for pH
         elif new_mode == "CV":
             self.plot_mode = "CV"
-            self.plotWidget.setLabel(axis="left", text="Current (uA)")
-            self.plotWidget.setLabel(axis="bottom", text="Bias Voltage (V)")
-            self.plot1 = self.plotWidget.plot([], name='Chronoamp Data (uA)', pen='y')
-            self.plot2 = self.plotWidget.plot([], name='pH Data (V)', pen='m')
+            self.CAplotWidget.setLabel(axis="left", text="Current (uA)")
+            self.CAplotWidget.setLabel(axis="bottom", text="Bias Voltage (V)")
+            self.plot1 = self.CAplotWidget.plot([], name='CA Data (uA)', pen='y')
+            self.plot2 = self.VPlotWidget.plot([], name='pH Data (V)', pen='m')
+            self.plot3 = self.VPlotWidget.plot([], name='Temp Data (V)', pen='c')
+            self.plot4 = self.AccelPlotWidget.plot([], name='Accelerometer X Data', pen='y')
+            self.plot5 = self.AccelPlotWidget.plot([], name='Accelerometer Y Data', pen='m')
+            self.plot6 = self.AccelPlotWidget.plot([], name='Accelerometer Z Data', pen='c')
 
     def update_info(self, het):
         self.devNumDisp.setText(str(het.id))
         self.devStatusDisp.setText(het.dev_mode)
         self.devModeDisp.setText(het.pstat_mode)
-        self.devBiasDisp.setText(str(het.bias))
-        self.devGainDisp.setText(het.r_tia)
-        self.devODRDisp.setText(str(het.odr))
+        self.devBiasDisp.setText(str(het.bias_new)) #TODO fix this spaghetti
+        self.devGainDisp.setText(het.r_tia_new)
+        self.devODRDisp.setText(str(het.odr_new))
 
     async def update_plot(self):
         # fast update of all data
@@ -211,9 +227,17 @@ class MainWindow(QMainWindow):
             if len(cp.amp_data) > 300:
                 self.plot1.setData(cp.amp_data[-300:])
                 self.plot2.setData(cp.ph_data[-300:])
+                self.plot3.setData(cp.temp_data[-300:])
+                self.plot4.setData(cp.xl_x_data[-100:])
+                self.plot5.setData(cp.xl_y_data[-100:])
+                self.plot6.setData(cp.xl_z_data[-100:])
             else:
                 self.plot1.setData(cp.amp_data)
                 self.plot2.setData(cp.ph_data)
+                self.plot3.setData(cp.temp_data)
+                self.plot4.setData(cp.xl_x_data)
+                self.plot5.setData(cp.xl_y_data)
+                self.plot6.setData(cp.xl_z_data)
         elif self.plot_mode == "CV":
             self.plot1.setData(cp.cv_voltage, cp.cv_data)
             self.plot2.setData([])

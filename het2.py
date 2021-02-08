@@ -54,12 +54,18 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
         self.v_ref = 1.82
         self.amp_data = []
         self.ph_data = []
+        self.temp_data = []
+        self.xl_x_data = []
+        self.xl_y_data = []
+        self.xl_z_data = []
         self.batt_data = []
         self.cv_voltage = []
         self.cv_data = []
         self.char_list = [self.CHAR1, self.CHAR2, self.CHAR3, self.CHAR4, self.CHAR5]
         self.file_loc = ""
-        self.data_buffer = [['CA', 'pH']]
+        self.info_packet = ''
+        self.packet_buffer  = []
+        self.data_buffer = [['CA', 'pH', 'Temperature','Device','Bias','Gain','Period']]
 
     def update_char_list(self):
         self.char_list = [self.CHAR1, self.CHAR2, self.CHAR3, self.CHAR4, self.CHAR5]
@@ -75,13 +81,25 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
 
     def parse_data(self, packet, mode):
         if self.pstat_mode == 'CA_PH':
-            for i in range(0, 80, 4):
+            for i in range(0, 132, 4):
                 data = packet[i:i + 4]
-                if (i / 4) % 2 == 0:  # even packets contain pH data
-                    self.amp_data.append(hex2float(data[::-1].hex()))
+                if i<120:
+                # packets alternate between CA, pH, and temp data
+                    if (i / 4) % 3 == 0:
+                        self.amp_data.append(hex2float(data[::-1].hex()))
+                    elif (i / 4) % 3 == 1:
+                        self.ph_data.append(hex2float(data[::-1].hex()))
+                    else:
+                        self.temp_data.append(hex2float(data[::-1].hex()))
+                        self.data_buffer.append([self.amp_data[-1], self.ph_data[-1], self.temp_data[-1],
+                                                 self.id, self.bias_new, self.r_tia_new, self.odr_new])
                 else:
-                    self.ph_data.append(hex2float(data[::-1].hex()))
-                    self.data_buffer.append([self.amp_data[-1], self.ph_data[-1]])
+                    if i == 120:
+                        self.xl_x_data.append(hex2float(data[::-1].hex()))
+                    elif i == 124:
+                        self.xl_y_data.append(hex2float(data[::-1].hex()))
+                    elif i == 128:
+                        self.xl_z_data.append(hex2float(data[::-1].hex()))
 
         elif self.pstat_mode == "CV":
             pass
