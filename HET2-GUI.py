@@ -23,18 +23,23 @@ from bleak import BleakClient, discover
 from het2 import HET2Device
 from het2 import odr_values
 
-cp = HET2Device()
+from datetime import datetime
 
+cp = HET2Device()
+t0 = datetime.now()
 
 def notification_handler(sender, data):
+    global t0
     """Handle incoming packets."""
     # TODO this still drops packets...implement buffer
     print("Data received from {}".format(sender))
-    if sender[4:8] == cp.CHAR2[4:8]:
+ #   if sender[4:8] == cp.CHAR2[4:8]:
+    if sender == 40:
         print(len(data))
         print(data)
-        cp.parse_data(data, "AMPPH")
-    if sender[4:8] == cp.CHAR1[4:8]:
+        packet_time = datetime.now() - t0
+        cp.parse_data(data, mode = "CA", time = packet_time)
+    if sender == 32:
         cp.info_packet = data
 
 
@@ -52,14 +57,14 @@ class MainWindow(QMainWindow):
         self.filename = "Experiment"
         cp.set_file_info(self.filepath, self.filename)
         # Load the UI Page and QTimer
-        uic.loadUi('HET2_Gui-v2.ui', self)  # From QTDesigner
+        uic.loadUi('HET2_Gui-v3.ui', self)  # From QTDesigner
         self.filepathDisp.setText(self.filepath)
         self.expEntry.setText(self.filename)
         self.line_array = []
         for i in range(5):
             self.line_array.append(self.CAplotWidget.plot([], pen=(i, 5)))
         self.CAplotWidget.addLegend()
-        self.plot_mode = "CA_PH"
+        self.plot_mode = "CA"
         self.set_plotmode(self.plot_mode)
         self.timer = QTimer()
         self.timer.setInterval(1000)
@@ -87,7 +92,10 @@ class MainWindow(QMainWindow):
         print(cp.odr_new)
         cp.set_bias(float(self.biasEntry.text()))
         cp.set_rtia(self.gainCombo.currentText())
-        print("ODR: {}, Bias: {}, RTIA: {}".format(cp.odr_new, cp.bias_new, cp.r_tia_new))
+        cp.set_duty_timeon(self.dutyTimeCombo.currentText())
+        cp.set_duty_pct(self.dutyPctCombo.currentText())
+        print("ODR: {}, Bias: {}, RTIA: {}, Time On: {}, Pct: {}, ".format(cp.odr_new, cp.bias_new, cp.r_tia_new,
+                                                     cp.duty_timeon_new, cp.duty_pct_new))
 
     async def update_config(self, client):
         self.get_settings()
@@ -173,11 +181,14 @@ class MainWindow(QMainWindow):
         win.display_status("Started!")
 
     async def main(self, client):
+        global t0
+        t0 = datetime.now()
         while True:  # main loop
             if cp.data_buffer:
-                cp.save_data()
-            await asyncio.sleep(1)
-            await self.update_plot()
+                await self.update_plot()
+                if len(cp.data_buffer)>=100:
+                    cp.save_data()
+            await asyncio.sleep(0.1)
 
 
     def display_status(self, msg):
@@ -185,8 +196,8 @@ class MainWindow(QMainWindow):
         self.statusDisp.setText(msg)
 
     def set_plotmode(self, new_mode):
-        if new_mode == "CA_PH":
-            self.plot_mode = "CA_PH"
+        if new_mode == "CA":
+            self.plot_mode = "CA"
             self.CAplotWidget.setLabel(axis="left", text="Current (uA)")
             self.CAplotWidget.setLabel(axis="bottom", text="Samples")
             self.VPlotWidget.setLabel(axis="left", text="Voltage (V)")
@@ -218,12 +229,17 @@ class MainWindow(QMainWindow):
         self.devBiasDisp.setText(str(het.bias_new)) #TODO fix this spaghetti
         self.devGainDisp.setText(het.r_tia_new)
         self.devODRDisp.setText(str(het.odr_new))
+        self.devDutyTimeDisp.setText(str(het.duty_timeon_new))
+        self.devDutyPercentDisp.setText(str(het.duty_pct_new))
+
+
+
 
     async def update_plot(self):
         # fast update of all data
         # print("Update plot.")
         self.update_info(cp)
-        if self.plot_mode == "CA_PH":
+        if self.plot_mode == "CA":
             if len(cp.amp_data) > 300:
                 self.plot1.setData(cp.amp_data[-300:])
                 self.plot2.setData(cp.ph_data[-300:])
