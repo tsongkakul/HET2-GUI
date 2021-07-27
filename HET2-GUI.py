@@ -30,12 +30,12 @@ def notification_handler(sender, data):
     """Handle incoming packets."""
     # TODO this still drops packets...implement buffer
     print("Data received from {}".format(sender))
-    if sender[4:8] == cp.CHAR2[4:8]:
+    if sender == 40:
         print(len(data))
         print(data)
         cp.parse_data(data, "AMPPH")
-    if sender[4:8] == cp.CHAR1[4:8]:
-        cp.info_packet = data
+    # if sender[4:8] == cp.CHAR1[4:8]:
+    #     cp.info_packet = data
 
 
 class MainWindow(QMainWindow):
