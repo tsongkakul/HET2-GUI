@@ -44,7 +44,7 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
         self.id = 0
         self.dev_mode = 'Idle'
         self.dev_mode_new = self.dev_mode
-        self.pstat_mode = 'CA_PH'
+        self.pstat_mode = 'CA'
         self.pstat_mode_new = self.pstat_mode
         self.bias = 0  # between -1.27 and 1.27V
         self.bias_new = self.bias  # between -1.27 and 1.27V
@@ -59,6 +59,7 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
         self.duty_pct = 1
         self.duty_pct_new = self.duty_pct
         self.v_ref = 1.82
+        self.packet_data = []
         self.time_data = []
         self.amp_data = []
         self.ph_data = []
@@ -73,7 +74,9 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
         self.file_loc = ""
         self.info_packet = ''
         self.packet_buffer  = []
-        self.data_buffer = [['Time','CA', 'pH', 'Temperature','Device','Bias','Gain','Period']]
+        self.data_buffer = [['Packet','CA', 'pH', 'Temperature','Device','Bias','Gain','Period']]
+        #self.data_buffer = [['Packet', 'Time','CA', 'Device', 'Bias', 'Gain', 'Period']]
+        self.num_duty_cycles = 0
 
     def update_char_list(self):
         self.char_list = [self.CHAR1, self.CHAR2, self.CHAR3, self.CHAR4, self.CHAR5]
@@ -89,27 +92,33 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
 
     def parse_data(self, packet, mode: "CA", time):
         if self.pstat_mode == "CA":
+            packet_count = int(packet[-2:].hex(),16)
+            print(packet_count)
+
             for i in range(0, 132, 4):
                 data = packet[i:i + 4]
                 if i<120:
                 # packets alternate between CA, pH, and temp data
                     if (i / 4) % 3 == 0:
-                        self.time_data.append(time+self.odr*i/4)
+                        #self.time_data.append(time.total_seconds()-odr_values[self.odr]*(10-i/4))
+                        self.time_data.append(packet_count)
                         self.amp_data.append(hex2float(data[::-1].hex()))
                     elif (i / 4) % 3 == 1:
                         self.ph_data.append(hex2float(data[::-1].hex()))
                     else:
                         self.temp_data.append(hex2float(data[::-1].hex()))
+                        # self.data_buffer.append([self.amp_data[-1], self.id, self.bias_new,
+                        #                          self.r_tia_new, self.odr_new])
                         self.data_buffer.append([self.time_data[-1], self.amp_data[-1], self.ph_data[-1],
                                                  self.temp_data[-1], self.id, self.bias_new,
                                                  self.r_tia_new, self.odr_new])
-                else:
-                    if i == 120:
-                        self.xl_x_data.append(hex2float(data[::-1].hex()))
-                    elif i == 124:
-                        self.xl_y_data.append(hex2float(data[::-1].hex()))
-                    elif i == 128:
-                        self.xl_z_data.append(hex2float(data[::-1].hex()))
+                # else:
+                #     if i == 120:
+                #         self.xl_x_data.append(hex2float(data[::-1].hex()))
+                #     elif i == 124:
+                #         self.xl_y_data.append(hex2float(data[::-1].hex()))
+                #     elif i == 128:
+                #         self.xl_z_data.append(hex2float(data[::-1].hex()))
 
         elif self.pstat_mode == "CV":
             pass
@@ -130,7 +139,7 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             self.pstat_mode_new = try_input
             return 1
         else:
-            print("Invalid potentiostat mode.")
+            print("Invalid potentiostat mode:"+ str(input))
             return 0
 
     def set_bias(self, try_input):
@@ -163,19 +172,20 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             return 0
 
     def set_duty_timeon(self, try_input):
-        if try_input in duty_timeon_values:
-            self.duty_timeon_new = try_input
+        print("timeon", try_input)
+        if int(try_input) in duty_timeon_values:
+            self.duty_timeon_new = duty_timeon_values.index(int(try_input))
             return 1
         else:
-            print("Invalid Duty Time On value.")
+            print("Invalid Duty Time On value:" + str(try_input))
             return 0
 
     def set_duty_pct(self, try_input):
-        if try_input in duty_pct_values:
-            self.duty_pct_new = try_input
+        if int(try_input) in duty_pct_values:
+            self.duty_pct_new = duty_pct_values.index(int(try_input))
             return 1
         else:
-            print("Invalid Duty % value.")
+            print("Invalid Duty % value:" + str(try_input))
             return 0
 
     def get_sender(self, sender):
@@ -183,9 +193,9 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             return self.char_list.index(sender)
 
     def gen_cmd_str(self):
-        return '0c00' + cnv_modes(self.dev_mode_new, self.pstat_mode_new) + cnv_bias(self.bias_new) + \
+        return '0c00' + cnv_modes(self.dev_mode_new) + cnv_bias(self.bias_new) + \
                cnv_tia(self.r_tia_new) + str(hex(self.odr_new))[2:].zfill(2) + cnv_pga(self.pga_gain_new) + \
-               str(self.duty_timeon_new)+str(self.duty_pct_new)
+               '0000'+str(self.duty_timeon_new)[0]+str(self.duty_pct_new)[0]
 
     def set_file_info(self, path, file):
         self.file_loc = ''.join((path, '/', file, time.strftime("%Y%m%d-%H%M%S"), '.csv'))
@@ -197,15 +207,11 @@ class HET2Device(CustomPeripheral):  # HET2 class compatible with SW version 0.0
             self.data_buffer = []
 
 
-def cnv_modes(dev_mode, pstat_mode):
+def cnv_modes(dev_mode):
     try:
         dev_str = str(dev_modes.index(dev_mode))
     except ValueError:
         print("Value error, Invalid device mode.")
-    try:
-        pstat_str = str(pstat_modes.index(pstat_mode))
-    except ValueError:
-        print("Invalid pstat mode.")
     return dev_str.zfill(2)
 
 
@@ -218,7 +224,7 @@ def cnv_tia(rtia):
     try:
         tia_str = str(hex(rtia_values.index(rtia)))[2:].zfill(2)
     except ValueError:
-        print("Invalid pstat mode.")
+        print("Invalid TIA.")
     return tia_str
 
 

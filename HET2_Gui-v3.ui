@@ -739,12 +739,12 @@
      </property>
      <item>
       <property name="text">
-       <string>Idle</string>
+       <string>Stream</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Stream</string>
+       <string>Idle</string>
       </property>
      </item>
      <item>

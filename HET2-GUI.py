@@ -16,6 +16,7 @@ from os import getcwd
 import sys
 import asyncio
 import asyncqt
+from bleak import _logger as logger
 
 import bleak
 
@@ -26,18 +27,17 @@ from het2 import odr_values
 from datetime import datetime
 
 cp = HET2Device()
-t0 = datetime.now()
 
 def notification_handler(sender, data):
-    global t0
     """Handle incoming packets."""
     # TODO this still drops packets...implement buffer
     print("Data received from {}".format(sender))
  #   if sender[4:8] == cp.CHAR2[4:8]:
     if sender == 40:
-        print(len(data))
-        print(data)
-        packet_time = datetime.now() - t0
+        # print(len(data))
+        # print(data)
+        #packet_time = datetime.now() - cp.
+        packet_time = 1
         cp.parse_data(data, mode = "CA", time = packet_time)
     if sender == 32:
         cp.info_packet = data
@@ -84,10 +84,13 @@ class MainWindow(QMainWindow):
         self.actionQuit.triggered.connect(self.close)  # File->Quit
 
         # initialize values from combo box
+        self.get_settings()
+        self.last_data_len = 0
+        cmd_test = cp.gen_cmd_str()
+        print(cmd_test, len(cmd_test))
 
     def get_settings(self):
         cp.set_devmode(self.devModeCombo.currentText())
-        cp.set_pstatmode(self.pstatModeCombo.currentText())
         cp.set_odr(float(self.ODRCombo.currentText()))
         print(cp.odr_new)
         cp.set_bias(float(self.biasEntry.text()))
@@ -138,7 +141,7 @@ class MainWindow(QMainWindow):
         self.display_status("Connecting to {}".format(cp.NAME))
         async with BleakClient(cp.ADDR, loop=loop) as client:
             try:
-                x = await client.is_connected()  # Attempt device connection TODO add error messages
+                logger.info(f"Connected: {client.is_connected}")
                 win.display_status("Enabling CHAR1")
                 await client.start_notify(cp.CHAR1, notification_handler)
                 win.display_status("Enabling CHAR2")
@@ -146,8 +149,8 @@ class MainWindow(QMainWindow):
                 win.display_status("Connected")
                 await self.start_task(client)
                 await self.main(client)
-            except AttributeError:
-                win.display_status("Unable to connect!")
+            # except AttributeError:
+            #     win.display_status("Unable to connect!")
             except bleak.exc.BleakDotNetTaskError:
                 win.display_status("Could not get GATT characteristics")
             # except:
@@ -178,6 +181,7 @@ class MainWindow(QMainWindow):
         syscfg_string = bytearray.fromhex(cp.gen_cmd_str().ljust(cp.SYSCFGLEN * 2, '0'))
         print(syscfg_string)
         await client.write_gatt_char(cp.SYSCFG, syscfg_string)
+        cp.start_time = datetime.now()
         win.display_status("Started!")
 
     async def main(self, client):
@@ -188,7 +192,7 @@ class MainWindow(QMainWindow):
                 await self.update_plot()
                 if len(cp.data_buffer)>=100:
                     cp.save_data()
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.05)
 
 
     def display_status(self, msg):
@@ -237,30 +241,32 @@ class MainWindow(QMainWindow):
 
     async def update_plot(self):
         # fast update of all data
-        # print("Update plot.")
         self.update_info(cp)
         if self.plot_mode == "CA":
-            if len(cp.amp_data) > 300:
-                self.plot1.setData(cp.amp_data[-300:])
-                self.plot2.setData(cp.ph_data[-300:])
-                self.plot3.setData(cp.temp_data[-300:])
-                self.plot4.setData(cp.xl_x_data[-100:])
-                self.plot5.setData(cp.xl_y_data[-100:])
-                self.plot6.setData(cp.xl_z_data[-100:])
-            else:
-                self.plot1.setData(cp.amp_data)
-                self.plot2.setData(cp.ph_data)
-                self.plot3.setData(cp.temp_data)
-                self.plot4.setData(cp.xl_x_data)
-                self.plot5.setData(cp.xl_y_data)
-                self.plot6.setData(cp.xl_z_data)
+            if len(cp.amp_data)> self.last_data_len:
+                self.last_data_len  = len(cp.amp_data)
+                print(cp.data_buffer[-1])
+                if len(cp.amp_data) > 300:
+                    self.plot1.setData(cp.amp_data[-300:])
+                    self.plot2.setData(cp.ph_data[-300:])
+                    self.plot3.setData(cp.temp_data[-300:])
+                    # self.plot4.setData(cp.xl_x_data[-100:])
+                    # self.plot5.setData(cp.xl_y_data[-100:])
+                    # self.plot6.setData(cp.xl_z_data[-100:])
+                else:
+                    self.plot1.setData(cp.amp_data)
+                    self.plot2.setData(cp.ph_data)
+                    self.plot3.setData(cp.temp_data)
+                    # self.plot4.setData(cp.xl_x_data)
+                    # self.plot5.setData(cp.xl_y_data)
+                    # self.plot6.setData(cp.xl_z_data)
         elif self.plot_mode == "CV":
             self.plot1.setData(cp.cv_voltage, cp.cv_data)
             self.plot2.setData([])
 
     def on_disconnect(self, client: BleakClient):
         self.connected = False
-        # Put code here to handle what happens on disconnet.
+        # Put code here to handle what happens on disconnect.
         print("Disconnected.")
 
 
