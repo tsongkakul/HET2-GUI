@@ -19,7 +19,7 @@ class CustomPeripheral(object):
         self.ADDR = "unknown"
         self.SYSCFG = "f000abcd-0451-4000-b000-000000000000"
         self.CHAR1 = "f00062d2-0451-4000-b000-000000000000"
-        self.CHAR2 = "f00044dc-0451-4000-b000-000000000000"
+        self.CHAR2 = "f0005941-0451-4000-b000-000000000000"
         self.CHAR3 = "f0003c36-0451-4000-b000-000000000000"
         self.CHAR4 = "f0003a36-0451-4000-b000-000000000000"
         self.CHAR5 = "f00030d8-0451-4000-b000-000000000000"
@@ -34,7 +34,7 @@ class CustomPeripheral(object):
         self.CONNECTED = 0
         self.SYSCFGLEN = 10
         self.CHAR1LEN = 20
-        self.CHAR2LEN = 82
+        self.CHAR2LEN = 134
 
     def parse_data(self, sender,data):
         """For basic custom peripheral with data in first byte only, extend/replace as needed"""
